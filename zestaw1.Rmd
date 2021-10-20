@@ -1,0 +1,262 @@
+---
+title: "Zestaw 1"
+output: html_notebook
+---
+
+1.1. Zapoznaj się z opisem podstawowych elementów języka R (http://github.com/rstudio/
+cheatsheets/raw/master/base-r.pdf).
+
+1.2. Napisz kilka wariantów funkcji obliczającej średnią z próby (zadanej jako wektor v); kolejne warianty mogą wykorzystywać np. różne rodzaje pętli ( for, while, repeat ). Porównaj
+działanie z funkcją biblioteczną mean.
+
+Tworzę testowy wektor
+```{r}
+test_vector <- 1:10
+```
+
+Tworzę funkcję do obliczenia średniej
+```{r}
+sredniafor <- function(vector){
+  amount <- 0
+  sum <- 0
+  for (v in vector){
+    amount <- amount + 1
+    sum <- sum + v
+  }
+  return(sum/amount)
+}
+
+
+sredniafor(test_vector)
+```
+
+Pamiętać że w R liczymy od 1!!!
+```{r}
+sredniawhile <- function(vector){
+  cnt <- 1
+  sum <- 0
+  while (cnt <= length(vector)){
+    sum <- sum + vector[cnt]
+    cnt <- cnt + 1
+  }
+  return(sum/length(vector))
+}
+
+sredniawhile(test_vector)
+
+```
+
+
+```{r}
+sredniarepeat <- function(vector){
+  cnt <- 1
+  sum <- 0
+  repeat{
+    sum <- sum + vector[cnt]
+    cnt <- cnt + 1
+    if (cnt > length(vector)){
+      cnt <- cnt - 1
+      break
+    }
+  }
+  return(sum/cnt)
+}
+
+sredniarepeat(test_vector)
+```
+
+1.3. [opcjonalne] Napisz funkcję obliczającą średnią ucinaną (o parametrze k) elementów wektora v
+```{r}
+srednia_ucinana <- function(vector, k){
+  new_vector <- vector[(k+1):(length(vector)-k)]
+  print(new_vector)
+  sredniafor(new_vector)
+}
+
+srednia_ucinana(test_vector,1)
+```
+
+
+1.4. [opcjonalne] Napisz funkcję obliczającą średnią winsorowską (o parametrze k) elementów
+wektora v.
+
+N A W I A S Y !!!
+```{r}
+srednia_winsor <- function(vector, k){
+  message('new_v:',new_vector)
+  message('k:',k)
+  new_vector <- vector[(k+1):(length(vector)-k)]
+  message('new_v:',new_vector)
+  sum <- 0
+  for (v in new_vector){
+    sum <- sum + v
+  }
+  
+  message('min:',min(new_vector))
+  message('max:',max(new_vector))
+  return((sum+k*min(new_vector)+k*max(new_vector))/(length(new_vector)+2*k))
+  
+}
+srednia_winsor(test_vector, 4)
+
+```
+
+1.5. Napisz funkcję obliczającą medianę próby (zadanej jako wektor v). Porównaj działanie z
+funkcją biblioteczną median.
+
+```{r}
+medianaWLGS <- function(vector, bool){
+  len <- length(vector)
+  if (bool==1){
+    vector <- sort(vector)
+  }
+  if (len %% 2 == 0){
+    return((vector[(len/2)]+vector[((len/2)+1)])/2)
+  } else {
+    return(vector[(len/2)+1])
+  }
+}
+
+medianaWLGS(test_vector, 1)
+median(test_vector)
+```
+
+
+1.6. Napisz funkcję obliczającą rozstęp próby (zadanej jako wektor v).
+
+```{r}
+
+rozstep <- function(vector){
+  return((max(vector)) - (min(vector)))
+}
+
+rozstep(test_vector)
+```
+
+1.7. Napisz funkcję obliczającą wariancję w próbie (zadanej jako wektor v). Porównaj działanie
+z funkcją biblioteczną var. Czy można wykorzystać tę funkcję do obliczenia wariancji dla całej
+populacji?
+Tak, biorąc losowe próby z populacji i obliczając ich średnią
+Wazne!!! sum/n-1 !!!
+
+Dla całej populacji sum/n
+```{r}
+wariancja <- function(vector){
+  sr <- mean(vector)
+  message('srednia:',sr)
+  sum <- 0
+  for (v in vector){
+    sum <- sum + ((v-sr)**2)
+  }
+  return(sum/(length(vector)-1))
+}
+
+wariancja(test_vector)
+var(test_vector)
+
+```
+
+1.8. Napisz funkcję obliczającą odchylenie standardowe w próbie (zadanej jako wektor v).
+Porównaj działanie z funkcją biblioteczną sd. Czy można wykorzystać tę funkcję do obliczenia
+odchylenia standardowego dla całej populacji?
+
+```{r}
+odsd <- function(vector){
+  return(wariancja(vector)**(0.5))
+}
+
+odsd(test_vector)
+sd(test_vector)
+```
+
+
+1.9. Napisz funkcję obliczającą odchylenie przeciętne od wartości średniej dla próby (zadanej
+jako wektor v).
+
+```{r}
+odch_przecietne <- function(vector){
+  sr <- mean(vector)
+  sum <- 0
+  for (v in vector){
+    sum <- sum + abs(v - sr)
+  }
+  return(sum/length(vector))
+}
+
+odch_przecietne(test_vector)
+```
+
+1.10. Napisz funkcję obliczającą kwartyl dolny (pierwszy) próby (zadanej jako wektor v). Porównaj działanie z funkcją biblioteczną fivenum.
+??????? dziwne ...
+```{r}
+kwartyl_dolny <- function(vector){
+  len <- length(vector)
+  vector <- sort(vector)
+  if (len %% 2 == 1){
+    return(medianaWLGS(vector[1:((len/2)+1)],0))
+  }
+  else{
+    return(medianaWLGS(vector[1:(len/2)],0))
+  }
+}
+
+kwartyl_dolny(test_vector)
+fivenum(test_vector)
+message('Kwartyl dolny zestawu 1:11 to 3... chyba...')
+```
+
+1.11. Napisz funkcję obliczającą kwartyl górny (trzeci) próby (zadanej jako wektor v). Porównaj działanie z funkcją biblioteczną fivenum.
+
+```{r}
+kwartyl_gorny <- function(vector){
+  len <- length(vector)
+  vector <- sort(vector)
+  if (len %% 2 == 1){
+    return(medianaWLGS(vector[((len/2)+2):(length(vector))],0))
+  }
+  else{
+    return(medianaWLGS(vector[((len/2)+1):(length(vector))],0))
+  }
+}
+kwartyl_gorny(test_vector)
+fivenum(test_vector)
+```
+
+1.12. [opcjonalne] Uogólnij dwa poprzednie rozwiązania wprowadzając funkcję obliczającą
+kwantyl rzędu p. Porównaj działanie z funkcją biblioteczną quantile
+
+opcjonalne B)
+
+
+1.13. Napisz funkcję obliczającą rozstęp międzykwartylowy próby (zadanej jako wektor v).
+Porównaj działanie z funkcją biblioteczną IQR.
+
+```{r}
+
+iqrWLGS <- function(vector){
+  return(kwartyl_gorny(vector)-kwartyl_dolny(vector))
+}
+
+iqrWLGS(test_vector)
+IQR(test_vector) #widocznie IQR nie jest po prostu roznica Q3-Q1
+```
+
+
+1.14. [opcjonalne] Wykorzystując bibliotekę microbenchmark, np. jak poniżej:
+
+```{r}
+library(microbenchmark)
+testVec <- 1:1000
+print(microbenchmark(
+aver_lib = mean(testVec) # lib function
+), signif = 4)
+
+print(microbenchmark(
+wlgs = srednia(testVec) # lib function
+), signif = 4)
+
+
+# Tragedia po krotce
+```
+
+
