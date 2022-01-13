@@ -1,6 +1,0 @@
----
-title: "r-project"
-output: html_notebook
----
-
-Project R gonna be here.
